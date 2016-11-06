@@ -15,7 +15,8 @@ var InstagramSchema = new mongoose.Schema({
   link: String,
   tags: Object,
   dateCreated: String,
-  dateAsDateObject: Date
+  dateAsDateObject: Date,
+  photoID: { type: String, unique:true }
 });
 
 // Model based on schema
@@ -95,7 +96,6 @@ app.get('/search', function(req, res) {
     }
   }, callback);
 });
-
 
 app.listen(3000)
 
