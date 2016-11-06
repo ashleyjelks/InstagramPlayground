@@ -2,7 +2,6 @@ var express = require('express'),
   path = require('path');
   request = require('request');
   bodyParser = require('body-parser');
-  url = 'https://api.instagram.com/v1/tags/kimye/media/recent?access_token=272855367.b6f7db4.27aee70b486a4fd7b1b5546c1da0453d';
   app = express();
   timestamp = require('unix-timestamp');
 
@@ -34,10 +33,10 @@ app.get('/search', function(req, res) {
   var hashtag = req.query.hashtag;
   var startDate = req.query.startDate;
   var endDate = req.query.endDate;
-
+  var url = 'https://api.instagram.com/v1/tags/' + hashtag + '/media/recent/?&MIN_TAG_ID='+ startDate + '&MAX_TAG_ID='+ endDate +'&access_token=272855367.b6f7db4.27aee70b486a4fd7b1b5546c1da0453d';
   var callback = function(error, data) {
     if (error) {
-      return console.log(error);
+      return console.info(error);
     } else if ([]) {
       request(url, function(error, response, body) {
         if (!error && response.statusCode == 200) {
@@ -49,8 +48,8 @@ app.get('/search', function(req, res) {
             searchedTag: '',
             link: '',
             tags: '',
-            dateCreated: '',
-            dateAsDateObject: Date,
+            dateCreated: Date,
+            dateAsDateObject: '',
             photoID: String
           };
 
@@ -73,23 +72,28 @@ app.get('/search', function(req, res) {
 
             instagramPhotoObject.save(function(error){
               if (error) {
-                console.log(error);
+                console.info(error);
               } else {
-                console.log('photos with: ', hashtag, ' saved to database');
+                console.info('saved to db');
               }
             });
           }
         } if (error) {
-          console.log(error)
+          console.info(error)
         }
       })
-      console.log('if item was NOT in db');
     } else {
-      console.log(data, 'data data data data');
+      console.info(data);
     }
   };
 
-  InstagramPhotoObject.find({ searchedTag: hashtag }, callback);
+  InstagramPhotoObject.find({
+    searchedTag: hashtag,
+    dateCreated: {
+      $gte: timestamp.fromDate(startDate),
+      $lt: timestamp.fromDate(endDate)
+    }
+  }, callback);
 });
 
 
